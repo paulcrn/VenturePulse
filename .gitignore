@@ -43,5 +43,8 @@ models/
 secrets.toml
 *.json
 
+#Claude
+.claude/
+
 # User defined extras
 # Complete to your desire
