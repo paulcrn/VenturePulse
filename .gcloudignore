@@ -1,0 +1,8 @@
+.git
+.gitignore
+.env
+raw_data/
+notebooks/
+*.csv
+*.sqlite
+*.zip
