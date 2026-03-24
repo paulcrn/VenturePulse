@@ -3,5 +3,5 @@ uvicorn
 pandas
 scikit-learn
 python-dotenv
-xgboost
+xgboost==1.7.6
 shap
