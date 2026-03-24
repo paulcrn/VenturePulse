@@ -4,3 +4,4 @@ pandas
 scikit-learn
 python-dotenv
 xgboost
+shap

@@ -1,7 +1,7 @@
 import os
 import pickle
 
-MODEL_PATH = 'models/model.pkl'
+MODEL_PATH = 'models/best_pipeline_bin_death_score.pkl'
 
 def save_model(pipeline):
     os.makedirs('models', exist_ok=True)
