@@ -188,12 +188,20 @@ def _resolve_label(feature: str, shap_value: float) -> str:
 # OHE feature prefixes — only the active category (value == 1) should be shown
 _OHE_PREFIXES = ("region_group_", "industry_group_")
 
+# Binary features where value (0/1) must agree with SHAP direction to be shown.
+# Prevents e.g. "Not reached Series A yet" when the company actually has round_A=1.
+BINARY_FEATURES: set[str] = {
+    "seed", "venture", "angel", "grant", "debt_financing", "private_equity",
+    "round_A", "round_B", "round_C", "round_D",
+}
+
 
 def explain_prediction(
     shap_values: "list[float] | Any",
     feature_names: "list[str]",
     probability: float,
     feature_values: "list[float] | Any | None" = None,
+    raw_input: "dict | None" = None,
     top_n: int = 5,
 ) -> dict:
     """
@@ -210,20 +218,22 @@ def explain_prediction(
     probability : float
         Model's predicted survival probability in [0, 1].
     feature_values : array-like of float, optional
-        Preprocessed feature values for this sample (same order as feature_names).
-        Used to suppress inactive OHE categories (value == 0) so only the company's
-        actual region/industry is surfaced, not confusing "not-X" signals.
+        Preprocessed feature values (same order as feature_names).
+        Used to suppress inactive OHE categories (value == 0).
+    raw_input : dict, optional
+        Original pre-scaling input dict. Used to validate binary feature labels —
+        e.g. prevents "Not reached Series A yet" when round_A=1 was passed.
     top_n : int
         Maximum number of strengths and risks to return (default 5 each).
 
     Returns
     -------
     dict with keys:
-        prediction         – 'survived' or 'closed'
-        confidence         – float, percentage confidence in that prediction (0–100)
+        prediction           – 'survived' or 'closed'
+        confidence           – float, percentage confidence in that prediction (0–100)
         survival_probability – float, always the probability of survival (0–100)
-        strengths          – list of {label, impact} dicts (positive SHAP, sorted by magnitude)
-        risks              – list of {label, impact} dicts (negative SHAP, sorted by magnitude)
+        strengths            – list of {label, impact} dicts (positive SHAP, sorted by magnitude)
+        risks                – list of {label, impact} dicts (negative SHAP, sorted by magnitude)
     """
     values_lookup = (
         dict(zip(feature_names, feature_values)) if feature_values is not None else {}
@@ -231,15 +241,25 @@ def explain_prediction(
 
     pairs = list(zip(feature_names, shap_values))
 
-    # Filter out excluded features and inactive OHE categories
-    def _keep(feat: str) -> bool:
+    def _keep(feat: str, val: float) -> bool:
         if feat in EXCLUDE_FEATURES:
             return False
+        # OHE: only show the active category
         if any(feat.startswith(p) for p in _OHE_PREFIXES):
-            return values_lookup.get(feat, 1) == 1  # only show the active category
+            return values_lookup.get(feat, 1) == 1
+        # Binary flags: skip when value and SHAP direction contradict each other.
+        # e.g. round_A=1 with negative SHAP → don't say "Not reached Series A yet"
+        # e.g. round_A=0 with positive SHAP → don't say "Has seed funding" for absence
+        if feat in BINARY_FEATURES and raw_input is not None:
+            actual = raw_input.get(feat)
+            if actual is not None:
+                if actual == 1 and val < 0:
+                    return False  # has it but it's a mild drag — too confusing to surface
+                if actual == 0 and val > 0:
+                    return False  # absence is helping — not meaningful to show
         return True
 
-    pairs = [(feat, val) for feat, val in pairs if _keep(feat)]
+    pairs = [(feat, val) for feat, val in pairs if _keep(feat, val)]
 
     # Sort by absolute SHAP descending
     pairs.sort(key=lambda x: abs(x[1]), reverse=True)

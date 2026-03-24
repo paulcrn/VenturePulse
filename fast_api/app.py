@@ -90,4 +90,4 @@ def make_prediction(
     X_pp        = _preprocessor.transform(X)
     shap_values = _explainer.shap_values(X_pp)
 
-    return explain_prediction(shap_values[0], _feature_names, probability, feature_values=X_pp[0])
+    return explain_prediction(shap_values[0], _feature_names, probability, feature_values=X_pp[0], raw_input=input_data)
