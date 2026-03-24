@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from pydantic import BaseModel
+from fastapi.middleware.cors import CORSMiddleware
 
 from project_logic.registry import load_model_trained
 from project_logic.predict import predict
@@ -8,14 +8,13 @@ app = FastAPI()
 
 app.state.model = load_model_trained()
 
-# # Allow all requests (optional, good for development purposes)
-# app.add_middleware(
-#     CORSMiddleware,
-#     allow_origins=["*"],  # Allows all origins
-#     allow_credentials=True,
-#     allow_methods=["*"],  # Allows all methods
-#     allow_headers=["*"],  # Allows all headers
-# )
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 @app.get("/")
 def index():
