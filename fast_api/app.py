@@ -1,10 +1,13 @@
 import shap
 import pandas as pd
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 
 from project_logic.registry import load_model_trained
 from project_logic.shap_translator import explain_prediction
+
+# Median avg_years_between_rounds for single-round companies (from training data)
+_AVG_YEARS_SINGLE_ROUND = 1.040383
 
 app = FastAPI()
 
@@ -42,26 +45,53 @@ def index():
 
 @app.get("/predict")
 def make_prediction(
+    # Raw date inputs
+    founded_at: str,
+    first_funding_at: str,
+    last_funding_at: str,
+    # Funding totals
     funding_total_usd: float,
     funding_rounds: float,
+    # Funding type flags (0 or 1)
     seed: float,
     venture: float,
     debt_financing: float,
     angel: float,
     grant: float,
     private_equity: float,
+    # Round flags (0 or 1)
     round_A: float,
     round_B: float,
     round_C: float,
     round_D: float,
-    avg_raised_per_round: float,
-    age_first_funding_days: float,
-    funding_span_days: float,
-    avg_years_between_rounds: float,
-    time_since_last_funding: float,
+    # Groupings
     region_group: str,
     industry_group: str,
 ):
+    try:
+        t_founded      = pd.Timestamp(founded_at)
+        t_first        = pd.Timestamp(first_funding_at)
+        t_last         = pd.Timestamp(last_funding_at)
+    except Exception:
+        raise HTTPException(status_code=422, detail="Dates must be in YYYY-MM-DD format.")
+
+    today = pd.Timestamp.today().normalize()
+
+    # --- Derived features (mirrors training feature engineering) ---
+    avg_raised_per_round = (funding_total_usd / funding_rounds) if funding_rounds > 0 else 0.0
+
+    age_first_funding_days = max(0.0, (t_first - t_founded).days)
+
+    funding_span_days = max(0.0, (t_last - t_first).days)
+
+    if funding_rounds > 1:
+        avg_years_between_rounds = (funding_span_days / 365.25) / (funding_rounds - 1)
+    else:
+        avg_years_between_rounds = _AVG_YEARS_SINGLE_ROUND
+
+    # Use today as snapshot so real post-2015 startups land in-distribution
+    time_since_last_funding = max(0.0, (today - t_last).days / 365.25)
+
     input_data = {
         "funding_total_usd":        funding_total_usd,
         "funding_rounds":           funding_rounds,
@@ -84,7 +114,7 @@ def make_prediction(
         "industry_group":           industry_group,
     }
 
-    X          = pd.DataFrame([input_data])
+    X           = pd.DataFrame([input_data])
     probability = float(_pipeline.predict_proba(X)[0][1])
 
     X_pp        = _preprocessor.transform(X)
