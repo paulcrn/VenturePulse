@@ -78,12 +78,12 @@ FEATURE_LABELS: dict[str, str] = {
 DIRECTION_LABELS: dict[str, dict[str, str]] = {
     # --- Continuous features ---
     "time_since_last_funding": {
-        "positive": "Got funded recently",
-        "negative": "Funding has gone stale",
+        "positive": "Active funding momentum",
+        "negative": "No recent funding activity",
     },
     "age_first_funding_days": {
-        "positive": "Got funded quickly after founding",
-        "negative": "Took a long time to get first funding",
+        "positive": "Strong early investor traction",
+        "negative": "Extended pre-funding period",
     },
     "avg_years_between_rounds": {
         "positive": "Consistent pace between funding rounds",
@@ -123,19 +123,19 @@ DIRECTION_LABELS: dict[str, dict[str, str]] = {
     # --- Funding stage flags ---
     "round_A": {
         "positive": "Reached Series A",
-        "negative": "Not reached Series A yet",
+        "negative": "No Series A on record",
     },
     "round_B": {
         "positive": "Reached Series B",
-        "negative": "Not reached Series B yet",
+        "negative": "No Series B on record",
     },
     "round_C": {
         "positive": "Reached Series C",
-        "negative": "Not reached Series C yet",
+        "negative": "No Series C on record",
     },
     "round_D": {
         "positive": "Reached Series D",
-        "negative": "Not reached Series D yet",
+        "negative": "No Series D on record",
     },
 }
 
