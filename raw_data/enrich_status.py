@@ -70,12 +70,12 @@ def load_hf_dataset(hf_id: str, columns: list) -> pd.DataFrame:
         from datasets import load_dataset
     except ImportError:
         raise ImportError(
-            "Das 'datasets'-Paket fehlt.\n"
-            "Bitte installieren mit:  pip install datasets"
+            "The 'datasets' package is missing.\n"
+            "Please install it with:  pip install datasets"
         )
 
-    print(f"[1/4] Lade HuggingFace-Dataset '{hf_id}' (Streaming)...")
-    print("      Kann 3–5 Minuten dauern bei 2.81M Zeilen.\n")
+    print(f"[1/4] Loading HuggingFace dataset '{hf_id}' (streaming)...")
+    print("      May take 3–5 minutes for 2.81M rows.\n")
 
     ds   = load_dataset(hf_id, split="train", streaming=True)
     rows = []
@@ -83,25 +83,25 @@ def load_hf_dataset(hf_id: str, columns: list) -> pd.DataFrame:
     for i, row in enumerate(ds):
         rows.append({col: row.get(col) for col in columns})
         if (i + 1) % 500_000 == 0:
-            print(f"      {i+1:,} Zeilen geladen...")
+            print(f"      {i+1:,} rows loaded...")
 
     hf_df = pd.DataFrame(rows)
-    print(f"      Fertig — {len(hf_df):,} Zeilen geladen.")
-    print(f"      HF operating_status Verteilung:\n"
+    print(f"      Done — {len(hf_df):,} rows loaded.")
+    print(f"      HF operating_status distribution:\n"
           f"{hf_df['operating_status'].value_counts(dropna=False).to_string()}\n")
     return hf_df
 
 
 def load_investments(path: str) -> pd.DataFrame:
     """Loads investments_VC.csv with the correct encoding and column cleanup."""
-    print(f"[2/4] Lade '{path}'...")
+    print(f"[2/4] Loading '{path}'...")
     df = pd.read_csv(path, encoding="ISO-8859-1")
     df = df.rename(columns={
         " market ":            "market",
         " funding_total_usd ": "funding_total_usd"
     })
-    print(f"      {len(df):,} Zeilen geladen.")
-    print(f"      Status-Verteilung (original):\n"
+    print(f"      {len(df):,} rows loaded.")
+    print(f"      Status distribution (original):\n"
           f"{df['status'].value_counts(dropna=False).to_string()}\n")
     return df
 
@@ -122,7 +122,7 @@ def merge_and_enrich(df: pd.DataFrame, hf: pd.DataFrame) -> pd.DataFrame:
     status_enriched only contains values that also appear in the original:
     "operating", "acquired", "closed"
     """
-    print("[3/4] Matche Permalinks und erstelle status_enriched...")
+    print("[3/4] Matching permalinks and creating status_enriched...")
 
     # Normalize permalinks
     df["_pl"] = df["permalink"].apply(clean_permalink)
@@ -140,7 +140,7 @@ def merge_and_enrich(df: pd.DataFrame, hf: pd.DataFrame) -> pd.DataFrame:
     # Only operating companies are in scope
     operating_mask = df["status"] == "operating"
     n_operating    = operating_mask.sum()
-    print(f"      Operating companies im Datensatz: {n_operating:,}")
+    print(f"      Operating companies in the dataset: {n_operating:,}")
 
     # Initialize status_enriched with original values (acquired + closed unchanged)
     df["status_enriched"] = df["status"].copy()
@@ -166,11 +166,11 @@ def merge_and_enrich(df: pd.DataFrame, hf: pd.DataFrame) -> pd.DataFrame:
         if pl in hf_lookup
     )
 
-    print(f"      Matches gefunden:        {n_with_match:,} "
+    print(f"      Matches found:           {n_with_match:,} "
           f"({n_with_match / n_operating * 100:.1f}%)")
-    print(f"        → neu als 'closed':    {n_now_closed:,}")
-    print(f"        → bleibt 'operating':  {n_with_match - n_now_closed:,}")
-    print(f"      Kein Match (operating):  {n_operating - n_with_match:,}\n")
+    print(f"        → newly 'closed':      {n_now_closed:,}")
+    print(f"        → stays 'operating':   {n_with_match - n_now_closed:,}")
+    print(f"      No match (operating):    {n_operating - n_with_match:,}\n")
 
     return df
 
@@ -198,15 +198,15 @@ def print_summary(df: pd.DataFrame) -> None:
         (df["status_enriched"] == "closed")
     ).sum()
 
-    print(f"\n→ {n_updated:,} Companies von 'operating' auf 'closed' aktualisiert")
-    print(f"→ Datenquelle: HuggingFace opensporks/crunchbase (Stand Aug 2024)")
-    print(f"→ Originale 'status'-Spalte ist unverändert erhalten")
+    print(f"\n→ {n_updated:,} companies updated from 'operating' to 'closed'")
+    print(f"→ Data source: HuggingFace opensporks/crunchbase (as of Aug 2024)")
+    print(f"→ The original 'status' column is preserved unchanged")
     print("=" * 55)
     print()
-    print("Nutzung im Notebook:")
+    print("Usage in a notebook:")
     print("  df = pd.read_csv('enriched_investments.csv', encoding='utf-8')")
-    print("  # 'status'          → Original (unverändert)")
-    print("  # 'status_enriched' → Angereichert, gleiche Kategorien")
+    print("  # 'status'          → original (unchanged)")
+    print("  # 'status_enriched' → enriched, same categories")
 
 
 # ---------------------------------------------------------------------------
@@ -218,9 +218,9 @@ def main():
         description="Enrich investments_VC.csv with HuggingFace Crunchbase status data"
     )
     parser.add_argument("--input",  default=DEFAULT_INPUT,
-                        help=f"Pfad zur investments_VC.csv (default: {DEFAULT_INPUT})")
+                        help=f"Path to investments_VC.csv (default: {DEFAULT_INPUT})")
     parser.add_argument("--output", default=DEFAULT_OUTPUT,
-                        help=f"Ausgabepfad (default: {DEFAULT_OUTPUT})")
+                        help=f"Output path (default: {DEFAULT_OUTPUT})")
     args = parser.parse_args()
 
     # 1. Load investments
@@ -234,9 +234,9 @@ def main():
 
     # 4. Save
     output_path = Path(args.output)
-    print(f"[4/4] Speichere nach '{output_path}'...")
+    print(f"[4/4] Saving to '{output_path}'...")
     df_enriched.to_csv(output_path, index=False, encoding="utf-8")
-    print(f"      Gespeichert ({output_path.stat().st_size / 1e6:.1f} MB)\n")
+    print(f"      Saved ({output_path.stat().st_size / 1e6:.1f} MB)\n")
 
     # 5. Summary
     print_summary(df_enriched)
