@@ -1,0 +1,30 @@
+# Keep the build context small. Mirrors .gcloudignore.
+# NOTE: do NOT exclude requirements.txt, setup.py, fast_api/, project_logic/ or models/ —
+# the image needs them to `pip install -e .` and to load the trained pipeline.
+
+.git
+.gitignore
+.gcloudignore
+.dockerignore
+
+# Local env / tooling
+.env
+.envrc
+.python-version
+.claude/
+
+# Notebooks and data are not needed at runtime
+notebooks/
+raw_data/
+*.csv
+*.sqlite
+*.zip
+
+# Python / OS cruft
+__pycache__/
+*.pyc
+*.egg-info/
+.ipynb_checkpoints/
+.coverage
+.DS_Store
+*Zone.Identifier

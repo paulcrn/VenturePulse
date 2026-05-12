@@ -41,7 +41,16 @@ models/
 .env.yaml
 .credentials
 secrets.toml
-*.json
+# GCP service-account keys and other credential JSON (scoped — a blanket
+# *.json rule also hides legitimate config files, so only ignore key-like ones)
+*-key.json
+*-keyfile.json
+*credentials*.json
+service-account*.json
+gcp-*.json
+
+# Notebook scratch artifacts (intermediate models / configs dumped next to a notebook)
+notebooks/*.json
 
 #Claude
 .claude/
