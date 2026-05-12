@@ -1,0 +1,23 @@
+# Ruff configuration — https://docs.astral.sh/ruff/
+# Run:  ruff check .        (lint)
+#       ruff check --fix .  (lint + autofix)
+#       ruff format .       (format)
+
+target-version = "py310"
+line-length = 100
+
+# Notebooks contain exploratory code with intentionally loose style; skip them.
+extend-exclude = ["notebooks"]
+
+[lint]
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes
+    "I",   # isort (import ordering)
+    "UP",  # pyupgrade
+    "B",   # flake8-bugbear
+]
+ignore = [
+    "E501",  # line-too-long: the codebase uses aligned-dict formatting on purpose
+]
