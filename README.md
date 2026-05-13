@@ -181,7 +181,25 @@ The `notebooks/` directory contains the exploratory and modeling work, roughly i
 
 ## My contributions
 
-This was a four-person Le Wagon final project. My main contributions:
+This was a three-person Le Wagon final project. My main areas of work:
+
+- **Data cleaning and enrichment**
+  ([`notebooks/data_cleaning_all.ipynb`](notebooks/data_cleaning_all.ipynb),
+  [`notebooks/data_cleaning_enriched.ipynb`](notebooks/data_cleaning_enriched.ipynb),
+  [`raw_data/enrich_status.py`](raw_data/enrich_status.py) —
+  branch [`enriched-dataset-paul`](https://github.com/paulcrn/VenturePulse/tree/enriched-dataset-paul)).
+  Large parts of the Crunchbase data cleaning pipeline, plus the HuggingFace
+  enrichment script that streams the `opensporks/crunchbase` dataset and
+  refreshes operating status with August 2024 data without overwriting the
+  original `status` column.
+
+- **Model exploration, tuning, and final selection**
+  ([`notebooks/final_models_.ipynb`](notebooks/final_models_.ipynb),
+  [`notebooks/shap_explainability.ipynb`](notebooks/shap_explainability.ipynb)).
+  Iterated through baseline → grid-searched candidates (XGBoost, Random Forest)
+  across two targets (`bin_death_score`, `bin_acq_vs_closed`), added permutation
+  importance cross-validation, and selected the production XGBoost pipeline
+  (AUC 0.870, F1 0.824).
 
 - **SHAP-to-plain-English translation layer**
   ([`project_logic/shap_translator.py`](project_logic/shap_translator.py) —
@@ -192,14 +210,6 @@ This was a four-person Le Wagon final project. My main contributions:
   momentum"; negative → "No recent funding activity"), OHE handling,
   binary-feature consistency checks against the raw input, and impact
   thresholds calibrated against the mean |SHAP| per feature.
-
-- **HuggingFace-based data enrichment pipeline**
-  ([`raw_data/enrich_status.py`](raw_data/enrich_status.py) —
-  branch [`enriched-dataset-paul`](https://github.com/paulcrn/VenturePulse/tree/enriched-dataset-paul)).
-  Streams the `opensporks/crunchbase` HF dataset and updates the operating
-  status of companies in the original Crunchbase dataset without overwriting
-  the source column — used to refresh "still operating" labels with August
-  2024 data.
 
 - **Production feature fix**
   (branch [`fix/time-since-last-funding`](https://github.com/paulcrn/VenturePulse/tree/fix/time-since-last-funding)).
