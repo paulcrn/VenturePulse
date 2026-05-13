@@ -4,7 +4,7 @@ Predict whether a startup will **survive or shut down** from its funding history
 
 VenturePulse trains an XGBoost classifier on Crunchbase venture-funding data, serves predictions through a FastAPI endpoint, and turns the model's SHAP values into plain-English "strengths" and "risks" that a frontend can show directly to a user.
 
-Built as the final project for the Le Wagon Data Science bootcamp.
+Built as the final project for the Le Wagon Data Science & AI bootcamp.
 
 ---
 
