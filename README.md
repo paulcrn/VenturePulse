@@ -1,5 +1,7 @@
 # VenturePulse
 
+[![CI](https://github.com/paulcrn/VenturePulse/actions/workflows/ci.yml/badge.svg)](https://github.com/paulcrn/VenturePulse/actions/workflows/ci.yml)
+
 Predict whether a startup will **survive or shut down** from its funding history — and explain *why*.
 
 VenturePulse trains an XGBoost classifier on Crunchbase venture-funding data, serves predictions through a FastAPI endpoint, and turns the model's SHAP values into plain-English "strengths" and "risks" that a frontend can show directly to a user.
