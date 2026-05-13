@@ -6,6 +6,8 @@ VenturePulse trains an XGBoost classifier on Crunchbase venture-funding data, se
 
 Built as the final project for the Le Wagon Data Science & AI bootcamp.
 
+🚀 **Live demo:** https://startupventurepulse.lovable.app/
+
 ---
 
 ## What it does
@@ -32,6 +34,34 @@ Under the hood:
 - **Model** — a scikit-learn `Pipeline` (`prep` ColumnTransformer + XGBoost classifier) saved to `models/best_pipeline_bin_death_score.pkl`.
 - **Data** — the Kaggle Crunchbase "investments_VC" dataset, enriched with up-to-date operating status from the HuggingFace `opensporks/crunchbase` dataset (Aug 2024 snapshot). See `raw_data/enrich_status.py`.
 - **Explainability** — `shap.TreeExplainer` over the XGBoost model; `project_logic/shap_translator.py` converts raw log-odds SHAP values into human-readable labels and impact levels.
+
+---
+
+## Results
+
+| Metric | Value |
+|---|---|
+| ROC AUC (test set) | **0.870** |
+| F1 — macro | 0.824 |
+| F1 — closed class | 0.820 |
+
+Binary classifier (survived vs closed) trained on ~43k Crunchbase companies
+with enriched operating status. XGBoost (`max_depth=4`, `n_estimators=100`,
+`learning_rate=0.05`) was selected over Random Forest for production due to
+faster inference and direct SHAP support.
+
+## Architecture
+
+```mermaid
+flowchart LR
+    U[User / Frontend] --> A[FastAPI /predict]
+    A --> P[ColumnTransformer<br/>numeric + OHE]
+    P --> M[XGBoost classifier]
+    M --> S[SHAP TreeExplainer]
+    S --> T[shap_translator<br/>→ strengths / risks]
+    T --> A
+    A --> U
+```
 
 ---
 
@@ -148,6 +178,33 @@ The `notebooks/` directory contains the exploratory and modeling work, roughly i
 | Explainability | `shap_explainability.ipynb` |
 
 ---
+
+## My contributions
+
+This was a four-person Le Wagon final project. My main contributions:
+
+- **SHAP-to-plain-English translation layer**
+  ([`project_logic/shap_translator.py`](project_logic/shap_translator.py) —
+  branch [`feat/shap-translator`](https://github.com/paulcrn/VenturePulse/tree/feat/shap-translator)).
+  476 lines that turn raw XGBoost SHAP values (log-odds) into the
+  frontend-ready "strengths" / "risks" JSON. Direction-aware labels
+  (e.g. positive SHAP on `time_since_last_funding` → "Active funding
+  momentum"; negative → "No recent funding activity"), OHE handling,
+  binary-feature consistency checks against the raw input, and impact
+  thresholds calibrated against the mean |SHAP| per feature.
+
+- **HuggingFace-based data enrichment pipeline**
+  ([`raw_data/enrich_status.py`](raw_data/enrich_status.py) —
+  branch [`enriched-dataset-paul`](https://github.com/paulcrn/VenturePulse/tree/enriched-dataset-paul)).
+  Streams the `opensporks/crunchbase` HF dataset and updates the operating
+  status of companies in the original Crunchbase dataset without overwriting
+  the source column — used to refresh "still operating" labels with August
+  2024 data.
+
+- **Production feature fix**
+  (branch [`fix/time-since-last-funding`](https://github.com/paulcrn/VenturePulse/tree/fix/time-since-last-funding)).
+  Replaced the leaky `years_operating` feature with `time_since_last_funding`
+  to make real post-2015 startups land in-distribution at serve time.
 
 ## Tech stack
 
