@@ -63,8 +63,8 @@ def clean_permalink(p: str) -> str:
 def load_hf_dataset(hf_id: str, columns: list) -> pd.DataFrame:
     """
     Loads the HuggingFace dataset in streaming mode.
-    Streaming avoids loading all 2.81M rows into RAM at once.
-    Takes about 3–5 minutes.
+    Streaming avoids holding the full ~66k-row dataset in RAM at once.
+    Takes a few minutes (dominated by the HF download).
     """
     try:
         from datasets import load_dataset
@@ -75,14 +75,14 @@ def load_hf_dataset(hf_id: str, columns: list) -> pd.DataFrame:
         )
 
     print(f"[1/4] Loading HuggingFace dataset '{hf_id}' (streaming)...")
-    print("      May take 3–5 minutes for 2.81M rows.\n")
+    print("      Streaming ~66k rows — usually a few minutes.\n")
 
     ds   = load_dataset(hf_id, split="train", streaming=True)
     rows = []
 
     for i, row in enumerate(ds):
         rows.append({col: row.get(col) for col in columns})
-        if (i + 1) % 500_000 == 0:
+        if (i + 1) % 10_000 == 0:
             print(f"      {i+1:,} rows loaded...")
 
     hf_df = pd.DataFrame(rows)
