@@ -9,6 +9,8 @@ Usage:
     result = explain_prediction(shap_values, feature_names, probability=0.87)
 """
 
+from typing import Any
+
 # ---------------------------------------------------------------------------
 # Feature label mappings
 # ---------------------------------------------------------------------------
@@ -236,10 +238,10 @@ def explain_prediction(
         risks                – list of {label, impact} dicts (negative SHAP, sorted by magnitude)
     """
     values_lookup = (
-        dict(zip(feature_names, feature_values)) if feature_values is not None else {}
+        dict(zip(feature_names, feature_values, strict=False)) if feature_values is not None else {}
     )
 
-    pairs = list(zip(feature_names, shap_values))
+    pairs = list(zip(feature_names, shap_values, strict=False))
 
     def _keep(feat: str, val: float) -> bool:
         if feat in EXCLUDE_FEATURES:

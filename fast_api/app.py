@@ -1,5 +1,5 @@
-import shap
 import pandas as pd
+import shap
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -72,8 +72,8 @@ def make_prediction(
         t_founded      = pd.Timestamp(founded_at)
         t_first        = pd.Timestamp(first_funding_at)
         t_last         = pd.Timestamp(last_funding_at)
-    except Exception:
-        raise HTTPException(status_code=422, detail="Dates must be in YYYY-MM-DD format.")
+    except Exception as e:
+        raise HTTPException(status_code=422, detail="Dates must be in YYYY-MM-DD format.") from e
 
     today = pd.Timestamp.today().normalize()
 
