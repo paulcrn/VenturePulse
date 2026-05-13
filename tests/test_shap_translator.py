@@ -6,7 +6,6 @@ trained pipeline artifact, so CI can run them in a fresh environment.
 
 from project_logic.shap_translator import explain_prediction
 
-
 FEATURE_NAMES = [
     "funding_total_usd", "funding_rounds",
     "seed", "venture", "debt_financing", "angel", "grant", "private_equity",
