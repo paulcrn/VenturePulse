@@ -181,7 +181,7 @@ The `notebooks/` directory contains the exploratory and modeling work, roughly i
 
 ## My contributions
 
-This was a three-person Le Wagon final project. My main areas of work:
+**I led this three-person Le Wagon final project.** My main areas of work:
 
 - **Data cleaning and enrichment**
   ([`notebooks/data_cleaning_all.ipynb`](notebooks/data_cleaning_all.ipynb),
