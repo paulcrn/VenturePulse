@@ -155,4 +155,4 @@ FastAPI · Uvicorn · scikit-learn · XGBoost 1.7.6 · SHAP · pandas · Docker 
 
 ## Authors
 
-Le Wagon Data Science — final project team.
+Le Wagon Data Science & AI — final project team.
