@@ -130,7 +130,7 @@ python raw_data/enrich_status.py --input raw_data/investments_VC.csv \
                                  --output raw_data/enriched_investments.csv
 ```
 
-This streams the ~2.8M-row HuggingFace Crunchbase dataset and adds a `status_enriched` column
+This streams the ~66k-row HuggingFace Crunchbase dataset and adds a `status_enriched` column
 (`operating` / `acquired` / `closed`) without touching the original `status` column. Expect 3–5 minutes.
 
 ---
