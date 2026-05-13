@@ -8,7 +8,17 @@ VenturePulse trains an XGBoost classifier on Crunchbase venture-funding data, se
 
 Built as the final project for the Le Wagon Data Science & AI bootcamp.
 
-🚀 **Live demo:** https://startupventurepulse.lovable.app/
+---
+
+## Demo
+
+[![Watch the VenturePulse Demo Day pitch](https://img.youtube.com/vi/tA_3t_9j1Wc/maxresdefault.jpg)](https://www.youtube.com/watch?v=tA_3t_9j1Wc)
+
+▶️ Recorded at the Le Wagon Data Science & AI Demo Day, 2026.
+
+The Lovable-built frontend that we used during the pitch is currently
+being migrated to my own hosting — the recording above shows the
+project end-to-end.
 
 ---
 
